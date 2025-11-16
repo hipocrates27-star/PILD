@@ -14,7 +14,7 @@ INSERT IGNORE INTO roles (code, name) VALUES ('admin', 'Administrador');
 INSERT IGNORE INTO roles (code, name) VALUES ('usuario', 'Usuario');
 
 CREATE TABLE IF NOT EXISTS users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(255),

@@ -11,12 +11,6 @@ module.exports = function authMiddleware(req, res, next) {
     }
   }
 
-  // If no header token, try cookie (parse from header)
-  if (!token && req.headers && req.headers.cookie) {
-    const m = req.headers.cookie.match('(?:^|; )token=([^;]*)');
-    if (m) token = decodeURIComponent(m[1]);
-  }
-
   if (!token) return res.status(401).json({ error: 'No token provided' });
 
   try {

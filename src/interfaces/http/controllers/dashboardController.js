@@ -35,22 +35,55 @@ class DashboardController {
         }
     }
 
+    async createContactoEmergencia(req, res) {
+        try {
+            const userId = req.user.id;
+            const { nombre, telefono, relacion } = req.body;
+
+            // Validaciones básicas
+            if (!nombre || !telefono || !relacion) {
+                return res.status(400).json({ error: 'Nombre, teléfono y relación son requeridos' });
+            }
+
+            const result = await this.dashboardRepository.createContactoEmergencia(userId, {
+                nombre,
+                telefono,
+                relacion
+            });
+
+            res.status(201).json({ message: 'Contacto de emergencia creado correctamente', id: result.insertId });
+        } catch (error) {
+            console.error('--- ERROR AL CREAR CONTACTO ---');
+            console.error(error); // Imprime el error completo
+            res.status(500).json({ error: 'Error al procesar la solicitud', message: error.message });
+        }
+    }
+
+    async getPerfilPublico(req, res) {
+        try {
+            const { id } = req.params;
+            const perfil = await this.dashboardRepository.getPerfilPublico(id);
+            res.json(perfil);
+        } catch (error) {
+            console.error('Error al obtener perfil público:', error);
+            res.status(500).json({ error: 'Error al obtener perfil público' });
+        }
+    }
+
     async updateInformacionMedica(req, res) {
         try {
             const userId = req.user.id;
-            const { tipo_sangre, alergias, medicamentos, notas_medicas } = req.body;
 
-            // Validaciones básicas
-            if (!tipo_sangre) {
-                return res.status(400).json({ error: 'El tipo de sangre es requerido' });
-            }
+            // Formatea la fecha (si existe)
+            const fechaFormateada = req.body.fecha_nacimiento
+                ? new Date(req.body.fecha_nacimiento).toISOString().split('T')[0]
+                : null;
 
-            const result = await this.dashboardRepository.upsertInformacionMedica(userId, {
-                tipo_sangre,
-                alergias: alergias || null,
-                medicamentos: medicamentos || null,
-                notas_medicas: notas_medicas || null
-            });
+            // Crea el objeto de datos usando el spread operator
+            const dataParaGuardar = { ...req.body, fecha_nacimiento: fechaFormateada };
+
+            // Pasa el objeto completo al repositorio
+            const result = await this.dashboardRepository.upsertInformacionMedica(userId, dataParaGuardar);
 
             res.json({ message: 'Información médica actualizada correctamente' });
         } catch (error) {
